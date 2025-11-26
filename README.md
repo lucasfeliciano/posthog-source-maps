@@ -1,29 +1,52 @@
-# Create T3 App
+# PostHog Sourcemaps – Next.js 16 + Vercel Reproduction
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This repository is a minimal reproducible example demonstrating an issue with PostHog sourcemap uploads when building a Next.js 16 project on Vercel.
 
-## What's next? How do I make an app with this?
+## Problem
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+I initially discovered this issue because sourcemaps were not working correctly in PostHog Error Tracking. While investigating, I noticed that the release created by PostHog was showing incorrect or missing repository information (previously appearing as `path0`). This led me to suspect that the failure to detect the repository and branch during Vercel builds is directly related to the sourcemaps not resolving properly.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+When running the build locally, PostHog correctly detects the Git SHA and the Git repository name.  
+However, when the build runs on Vercel CI (either from a pull request or a commit to `main`), the repository name is not detected at all.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Since CI/CD is normally responsible for generating and uploading sourcemaps, this behavior creates difficulty in real-world workflows. I would not expect to run a local build before creating a pull request just to ensure repository detection works.
 
-## Learn More
+## Setup
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+This example follows the official PostHog Next.js sourcemaps integration guide and uses:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- `@posthog/nextjs-config` ^1.6.0
+- `@posthog/cli` ^0.5.16
+- Next.js 16
+- Deployed on Vercel
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+The repository contains a simple Next.js app configured with PostHog and the minimal sourcemap setup needed to reproduce the issue.
 
-## How do I deploy this?
+## Reproducing the Issue
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+1. Clone this repository.
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Set the required PostHog environment variables.
+4. Run a local build:
+
+   ```bash
+   pnpm build
+   ```
+
+   Locally, the repository name is detected correctly and sourcemaps are uploaded with the expected metadata.
+
+5. Deploy to Vercel or push a commit/PR.  
+   The release on PostHog will not contain repository information, and sourcemaps will not resolve correctly in Error Tracking.
+
+## Feedback for PostHog (Context)
+
+While investigating this, I also noticed that the PostHog UI release table is not ordered by creation date. When debugging releases, manually searching page-by-page by commit hash is cumbersome. Ordering the table by most recent first would make the experience much smoother.
+
+## License
+
+MIT
