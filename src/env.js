@@ -7,7 +7,11 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    NODE_ENV: z.enum(["development", "test", "production"]),
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+    POSTHOG_SOURCE_MAPS_API_KEY: z.string(),
+    POSTHOG_PROJECT_ID: z.string(),
   },
 
   /**
@@ -17,6 +21,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string(),
   },
 
   /**
@@ -25,6 +30,9 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    POSTHOG_SOURCE_MAPS_API_KEY: process.env.POSTHOG_SOURCE_MAPS_API_KEY,
+    POSTHOG_PROJECT_ID: process.env.POSTHOG_PROJECT_ID,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
